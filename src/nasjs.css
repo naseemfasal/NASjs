@@ -1,6 +1,6 @@
 /**
  * NASjs.css - Beautiful UI Components Styles
- * @version 1.0.0
+ * @version 1.0.1
  * @license MIT
  */
 
@@ -224,10 +224,10 @@
 }
 
 /* ==========================================================================
-   TimePicker Styles
+   Simple TimePicker Styles
    ========================================================================== */
 
-.nasjs-timepicker {
+.nasjs-timepicker-simple {
   position: absolute;
   z-index: 9999;
   background: #ffffff;
@@ -235,155 +235,92 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   width: 280px;
-  user-select: none;
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
 }
 
-.nasjs-timepicker.nasjs-visible {
+.nasjs-timepicker-simple.nasjs-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.nasjs-tp-container {
-  padding: 20px;
-}
-
-.nasjs-tp-display {
-  text-align: center;
-  margin-bottom: 24px;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 10px;
-}
-
-.nasjs-tp-time {
-  font-size: 48px;
-  font-weight: 700;
-  color: #ffffff;
-  font-family: monospace;
-}
-
-.nasjs-tp-number {
-  display: inline-block;
-  min-width: 60px;
-}
-
-.nasjs-tp-separator {
-  margin: 0 8px;
-}
-
-.nasjs-tp-period {
-  font-size: 24px;
-  margin-left: 12px;
+.nasjs-tp-simple-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
   font-weight: 600;
+  color: #1f2937;
 }
 
-.nasjs-tp-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.nasjs-tp-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.nasjs-tp-btn-up,
-.nasjs-tp-btn-down {
-  width: 40px;
+.nasjs-tp-simple-close {
+  width: 32px;
   height: 32px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
+  border: none;
+  background: transparent;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 24px;
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  line-height: 1;
 }
 
-.nasjs-tp-btn-up:hover,
-.nasjs-tp-btn-down:hover {
+.nasjs-tp-simple-close:hover {
   background: #f3f4f6;
-  border-color: #9ca3af;
   color: #111827;
 }
 
-.nasjs-tp-btn-up:active,
-.nasjs-tp-btn-down:active {
-  transform: scale(0.95);
+.nasjs-tp-simple-body {
+  padding: 16px;
 }
 
-.nasjs-tp-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111827;
-  font-family: monospace;
-  min-width: 60px;
-  text-align: center;
-}
-
-.nasjs-tp-label {
-  font-size: 11px;
-  color: #6b7280;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.nasjs-tp-separator {
-  font-size: 32px;
-  font-weight: 700;
-  color: #d1d5db;
-  margin: 0 4px;
-  align-self: center;
-  margin-bottom: 32px;
-}
-
-.nasjs-tp-btn-period {
-  padding: 12px 20px;
-  border: 2px solid #3b82f6;
-  background: #ffffff;
+.nasjs-tp-simple-select {
+  width: 100%;
+  border: 2px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #3b82f6;
+  padding: 8px;
+  font-size: 15px;
+  font-family: monospace;
+  outline: none;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 40px;
+  transition: border-color 0.2s ease;
 }
 
-.nasjs-tp-btn-period:hover {
-  background: #3b82f6;
-  color: #ffffff;
+.nasjs-tp-simple-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.nasjs-tp-btn-period:active {
-  transform: scale(0.95);
+.nasjs-tp-simple-select option {
+  padding: 8px;
+  cursor: pointer;
 }
 
-.nasjs-tp-footer {
+.nasjs-tp-simple-select option:hover {
+  background: #f3f4f6;
+}
+
+.nasjs-tp-simple-footer {
   display: flex;
   gap: 8px;
-  padding-top: 16px;
+  padding: 12px 16px;
   border-top: 1px solid #e5e7eb;
 }
 
-.nasjs-tp-btn-action {
+.nasjs-tp-simple-btn {
   flex: 1;
   padding: 10px;
   border: 1px solid #d1d5db;
   background: #ffffff;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   color: #374151;
@@ -391,21 +328,21 @@
   transition: all 0.2s ease;
 }
 
-.nasjs-tp-btn-action:hover {
+.nasjs-tp-simple-btn:hover {
   background: #f9fafb;
   border-color: #9ca3af;
 }
 
-.nasjs-tp-btn-action:last-child {
-  color: #3b82f6;
-  border-color: #3b82f6;
+.nasjs-tp-simple-btn:first-child {
+  color: #667eea;
+  border-color: #667eea;
 }
 
-.nasjs-tp-btn-action:last-child:hover {
+.nasjs-tp-simple-btn:first-child:hover {
   background: #eff6ff;
 }
 
-.nasjs-tp-btn-action:active {
+.nasjs-tp-simple-btn:active {
   transform: scale(0.98);
 }
 
@@ -581,7 +518,7 @@
     font-size: 13px;
   }
   
-  .nasjs-timepicker {
+  .nasjs-timepicker-simple {
     width: 260px;
   }
   
@@ -596,7 +533,7 @@
 
 @media (prefers-color-scheme: dark) {
   .nasjs-datepicker,
-  .nasjs-timepicker,
+  .nasjs-timepicker-simple,
   .nasjs-modal {
     background: #1f2937;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
@@ -604,7 +541,8 @@
   
   .nasjs-dp-header,
   .nasjs-dp-footer,
-  .nasjs-tp-footer,
+  .nasjs-tp-simple-header,
+  .nasjs-tp-simple-footer,
   .nasjs-modal-header,
   .nasjs-modal-footer {
     border-color: #374151;
@@ -613,9 +551,8 @@
   .nasjs-dp-month,
   .nasjs-dp-year,
   .nasjs-dp-btn,
-  .nasjs-tp-btn-up,
-  .nasjs-tp-btn-down,
-  .nasjs-tp-btn-action,
+  .nasjs-tp-simple-select,
+  .nasjs-tp-simple-btn,
   .nasjs-modal-btn {
     background: #374151;
     border-color: #4b5563;
@@ -625,31 +562,34 @@
   .nasjs-dp-month:hover,
   .nasjs-dp-year:hover,
   .nasjs-dp-btn:hover,
-  .nasjs-tp-btn-up:hover,
-  .nasjs-tp-btn-down:hover,
-  .nasjs-tp-btn-action:hover,
+  .nasjs-tp-simple-btn:hover,
   .nasjs-modal-btn:hover {
     background: #4b5563;
   }
   
+  .nasjs-tp-simple-select option:hover {
+    background: #4b5563;
+  }
+  
   .nasjs-dp-nav,
+  .nasjs-tp-simple-close,
   .nasjs-modal-close {
     color: #9ca3af;
   }
   
   .nasjs-dp-nav:hover,
+  .nasjs-tp-simple-close:hover,
   .nasjs-modal-close:hover {
     background: #374151;
     color: #f9fafb;
   }
   
   .nasjs-dp-day-name,
-  .nasjs-tp-label {
+  .nasjs-tp-simple-header {
     color: #9ca3af;
   }
   
   .nasjs-dp-day,
-  .nasjs-tp-value,
   .nasjs-modal-title {
     color: #f9fafb;
   }
