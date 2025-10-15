@@ -1,7 +1,61 @@
 {
+  "name": "nasjs",
+  "version": "1.0.0",
+  "description": "Beautiful, lightweight, framework-agnostic UI components for modern web applications",
+  "main": "dist/nasjs.min.js",
+  "style": "dist/nasjs.min.css",
+  "types": "dist/nasjs.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "build:pro": "npm run build:js && npm run build:css",
+    "build:js": "terser src/nasjs.js -o dist/nasjs.min.js -c -m",
+    "build:css": "cleancss -o dist/nasjs.min.css src/nasjs.css",
+    "serve": "npx http-server -p 8080",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/nasjs.git"
+  },
+  "keywords": [
+    "ui",
+    "components",
+    "datepicker",
+    "timepicker",
+    "modal",
+    "popup",
+    "clock",
+    "vanilla-js",
+    "javascript",
+    "framework-agnostic",
+    "lightweight",
+    "responsive",
+    "dark-mode",
+    "accessible",
+    "nasjs"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/nasjs/issues"
+  },
+  "homepage": "https://yourusername.github.io/nasjs/",
   "devDependencies": {
-    "cssnano-cli": "^1.0.5",
-    "live-server": "^1.2.2",
-    "uglify-js": "^3.19.3"
-  }
+    "clean-css-cli": "^5.6.3",
+    "terser": "^5.44.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "not dead"
+  ]
 }
