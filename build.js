@@ -60,6 +60,7 @@ try {
     process.exit(1);
   }
 
+
   // Read source files
   console.log('📖 Reading source files...');
   const js = fs.readFileSync('src/nasjs.js', 'utf8');
