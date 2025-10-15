@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)]()
 [![Size](https://img.shields.io/badge/size-15KB-orange.svg)]()
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/nasjs?style=social)](https://github.com/yourusername/nasjs/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/naseemfasal/nasjs?style=social)](https://github.com/naseemfasal/nasjs/stargazers)
 
-[Demo](https://yourusername.github.io/nasjs/) | [Documentation](#documentation) | [GitHub](https://github.com/yourusername/nasjs)
+[Demo](https://naseemfasal.github.io/nasjs/) | [Documentation](#documentation) | [GitHub](https://github.com/naseemfasal/nasjs)
 
 ## 🌟 Features
 
@@ -43,7 +43,7 @@ yarn add nasjs
 
 ### Download
 
-Download the latest release from [GitHub Releases](https://github.com/yourusername/nasjs/releases)
+Download the latest release from [GitHub Releases](https://github.com/naseemfasal/nasjs/releases)
 
 ## 🚀 Quick Start
 
@@ -396,9 +396,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/nasjs/issues)
-- 📖 Docs: [Full Documentation](https://yourusername.github.io/nasjs/)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/nasjs/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/naseemfasal/nasjs/issues)
+- 📖 Docs: [Full Documentation](https://naseemfasal.github.io/nasjs/)
+- 💬 Discussions: [GitHub Discussions](https://github.com/naseemfasal/nasjs/discussions)
 
 ## 🗺️ Roadmap
 
@@ -414,4 +414,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by developers, for developers**
 
-[Website](https://yourusername.github.io/nasjs/) • [Documentation](https://yourusername.github.io/nasjs/) • [GitHub](https://github.com/yourusername/nasjs)
+[Website](https://naseemfasal.github.io/nasjs/) • [Documentation](https://naseemfasal.github.io/nasjs/) • [GitHub](https://github.com/naseemfasal/nasjs)
