@@ -1,6 +1,6 @@
 /**
  * NASjs - Beautiful, Lightweight UI Components
- * @version 1.0.0
+ * @version 1.0.1
  * @license MIT
  * @author Your Name
  * @description Framework-agnostic UI component library
@@ -10,7 +10,7 @@
   'use strict';
 
   const NASjs = {
-    version: '1.0.0',
+    version: '1.0.1',
     
     /**
      * DatePicker Component
@@ -186,13 +186,11 @@
           
           let html = '<div class="nasjs-dp-days-grid">';
           
-          // Previous month days
           for (let i = firstDay - 1; i >= 0; i--) {
             const day = daysInPrevMonth - i;
             html += `<button class="nasjs-dp-day nasjs-dp-day-other" data-action="select" data-day="${day}" data-month="${month - 1}" data-year="${year}">${day}</button>`;
           }
           
-          // Current month days
           for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
             const isToday = this.isToday(date);
@@ -209,7 +207,6 @@
             html += `<button class="${classes}" data-action="select" data-day="${day}" data-month="${month}" data-year="${year}" ${isDisabled ? 'disabled' : ''}>${day}</button>`;
           }
           
-          // Next month days
           const remainingCells = 42 - (firstDay + daysInMonth);
           for (let day = 1; day <= remainingCells; day++) {
             html += `<button class="nasjs-dp-day nasjs-dp-day-other" data-action="select" data-day="${day}" data-month="${month + 1}" data-year="${year}">${day}</button>`;
@@ -355,25 +352,23 @@
     },
     
     /**
-     * TimePicker Component
+     * TimePicker Component - Simple Dropdown Version
      */
     timePicker: function(options = {}) {
       const defaults = {
         selector: '.timepicker-input',
-        format: '12',
+        format: '12', // '12' or '24'
+        interval: 30, // 15, 30, 60 (1 hour), or 120 (2 hours) minutes
         onSelect: null
       };
       
       const config = { ...defaults, ...options };
       
-      class TimePicker {
+      class SimpleTimePicker {
         constructor(config) {
           this.config = config;
           this.activeInput = null;
           this.picker = null;
-          this.hour = 12;
-          this.minute = 0;
-          this.period = 'AM';
           this.init();
         }
         
@@ -385,7 +380,7 @@
         
         createPicker() {
           this.picker = document.createElement('div');
-          this.picker.className = 'nasjs-timepicker';
+          this.picker.className = 'nasjs-timepicker-simple';
           this.picker.style.display = 'none';
           document.body.appendChild(this.picker);
         }
@@ -404,7 +399,7 @@
         
         attachGlobalEvents() {
           document.addEventListener('click', (e) => {
-            if (!e.target.closest('.nasjs-timepicker') && 
+            if (!e.target.closest('.nasjs-timepicker-simple') && 
                 !e.target.closest(this.config.selector)) {
               this.hide();
             }
@@ -415,13 +410,29 @@
           });
         }
         
-        show(input) {
-          this.activeInput = input;
+        generateTimeOptions() {
+          const times = [];
+          const interval = this.config.interval;
           
-          if (input.value) {
-            this.parseTime(input.value);
+          for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += interval) {
+              if (this.config.format === '12') {
+                const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                const period = h < 12 ? 'AM' : 'PM';
+                const timeStr = `${String(hour12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${period}`;
+                times.push({ value: `${h}:${m}`, display: timeStr });
+              } else {
+                const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                times.push({ value: timeStr, display: timeStr });
+              }
+            }
           }
           
+          return times;
+        }
+        
+        show(input) {
+          this.activeInput = input;
           this.render();
           this.position(input);
           this.picker.style.display = 'block';
@@ -449,47 +460,27 @@
         }
         
         render() {
+          const times = this.generateTimeOptions();
+          const currentValue = this.activeInput ? this.activeInput.value : '';
+          
           this.picker.innerHTML = `
-            <div class="nasjs-tp-container">
-              <div class="nasjs-tp-display">
-                <div class="nasjs-tp-time">
-                  <span class="nasjs-tp-number">${String(this.hour).padStart(2, '0')}</span>
-                  <span class="nasjs-tp-separator">:</span>
-                  <span class="nasjs-tp-number">${String(this.minute).padStart(2, '0')}</span>
-                  ${this.config.format === '12' ? `<span class="nasjs-tp-period">${this.period}</span>` : ''}
-                </div>
-              </div>
-              
-              <div class="nasjs-tp-controls">
-                <div class="nasjs-tp-column">
-                  <button class="nasjs-tp-btn-up" data-action="hour-up">▲</button>
-                  <div class="nasjs-tp-value">${String(this.hour).padStart(2, '0')}</div>
-                  <button class="nasjs-tp-btn-down" data-action="hour-down">▼</button>
-                  <div class="nasjs-tp-label">Hour</div>
-                </div>
-                
-                <div class="nasjs-tp-separator">:</div>
-                
-                <div class="nasjs-tp-column">
-                  <button class="nasjs-tp-btn-up" data-action="minute-up">▲</button>
-                  <div class="nasjs-tp-value">${String(this.minute).padStart(2, '0')}</div>
-                  <button class="nasjs-tp-btn-down" data-action="minute-down">▼</button>
-                  <div class="nasjs-tp-label">Minute</div>
-                </div>
-                
-                ${this.config.format === '12' ? `
-                  <div class="nasjs-tp-column">
-                    <button class="nasjs-tp-btn-period" data-action="toggle-period">
-                      ${this.period}
-                    </button>
-                  </div>
-                ` : ''}
-              </div>
-              
-              <div class="nasjs-tp-footer">
-                <button class="nasjs-tp-btn-action" data-action="now">Now</button>
-                <button class="nasjs-tp-btn-action" data-action="done">Done</button>
-              </div>
+            <div class="nasjs-tp-simple-header">
+              <span>Select Time</span>
+              <button class="nasjs-tp-simple-close">×</button>
+            </div>
+            <div class="nasjs-tp-simple-body">
+              <select class="nasjs-tp-simple-select" size="8">
+                <option value="">-- Select Time --</option>
+                ${times.map(time => 
+                  `<option value="${time.display}" ${currentValue === time.display ? 'selected' : ''}>
+                    ${time.display}
+                  </option>`
+                ).join('')}
+              </select>
+            </div>
+            <div class="nasjs-tp-simple-footer">
+              <button class="nasjs-tp-simple-btn" data-action="now">Now</button>
+              <button class="nasjs-tp-simple-btn" data-action="clear">Clear</button>
             </div>
           `;
           
@@ -497,62 +488,38 @@
         }
         
         attachPickerEvents() {
+          const select = this.picker.querySelector('.nasjs-tp-simple-select');
+          const closeBtn = this.picker.querySelector('.nasjs-tp-simple-close');
+          
+          select.addEventListener('change', (e) => {
+            if (e.target.value) {
+              this.selectTime(e.target.value);
+            }
+          });
+          
+          select.addEventListener('dblclick', (e) => {
+            if (e.target.value) {
+              this.selectTime(e.target.value);
+            }
+          });
+          
+          closeBtn.addEventListener('click', () => this.hide());
+          
           this.picker.addEventListener('click', (e) => {
-            e.stopPropagation();
             const target = e.target.closest('[data-action]');
             if (!target) return;
             
             const action = target.dataset.action;
             
-            switch (action) {
-              case 'hour-up':
-                this.hour = this.config.format === '12' 
-                  ? (this.hour === 12 ? 1 : this.hour + 1)
-                  : (this.hour === 23 ? 0 : this.hour + 1);
-                this.render();
-                break;
-              case 'hour-down':
-                this.hour = this.config.format === '12'
-                  ? (this.hour === 1 ? 12 : this.hour - 1)
-                  : (this.hour === 0 ? 23 : this.hour - 1);
-                this.render();
-                break;
-              case 'minute-up':
-                this.minute = this.minute === 59 ? 0 : this.minute + 1;
-                this.render();
-                break;
-              case 'minute-down':
-                this.minute = this.minute === 0 ? 59 : this.minute - 1;
-                this.render();
-                break;
-              case 'toggle-period':
-                this.period = this.period === 'AM' ? 'PM' : 'AM';
-                this.render();
-                break;
-              case 'now':
-                this.setCurrentTime();
-                break;
-              case 'done':
-                this.selectTime();
-                break;
+            if (action === 'now') {
+              this.selectNow();
+            } else if (action === 'clear') {
+              this.clearTime();
             }
           });
         }
         
-        setCurrentTime() {
-          const now = new Date();
-          if (this.config.format === '12') {
-            this.hour = now.getHours() % 12 || 12;
-            this.period = now.getHours() >= 12 ? 'PM' : 'AM';
-          } else {
-            this.hour = now.getHours();
-          }
-          this.minute = now.getMinutes();
-          this.render();
-        }
-        
-        selectTime() {
-          const timeStr = this.formatTime();
+        selectTime(timeStr) {
           if (this.activeInput) {
             this.activeInput.value = timeStr;
             this.activeInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -565,23 +532,32 @@
           this.hide();
         }
         
-        formatTime() {
+        selectNow() {
+          const now = new Date();
+          const interval = this.config.interval;
+          
+          const minutes = Math.round(now.getMinutes() / interval) * interval;
+          const hours = minutes >= 60 ? (now.getHours() + 1) % 24 : now.getHours();
+          const roundedMinutes = minutes % 60;
+          
+          let timeStr;
           if (this.config.format === '12') {
-            return `${String(this.hour).padStart(2, '0')}:${String(this.minute).padStart(2, '0')} ${this.period}`;
+            const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+            const period = hours < 12 ? 'AM' : 'PM';
+            timeStr = `${String(hour12).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')} ${period}`;
           } else {
-            return `${String(this.hour).padStart(2, '0')}:${String(this.minute).padStart(2, '0')}`;
+            timeStr = `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
           }
+          
+          this.selectTime(timeStr);
         }
         
-        parseTime(timeStr) {
-          const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-          if (match) {
-            this.hour = parseInt(match[1]);
-            this.minute = parseInt(match[2]);
-            if (match[3]) {
-              this.period = match[3].toUpperCase();
-            }
+        clearTime() {
+          if (this.activeInput) {
+            this.activeInput.value = '';
+            this.activeInput.dispatchEvent(new Event('change', { bubbles: true }));
           }
+          this.hide();
         }
         
         refresh() {
@@ -595,7 +571,7 @@
         }
       }
       
-      return new TimePicker(config);
+      return new SimpleTimePicker(config);
     },
     
     /**
