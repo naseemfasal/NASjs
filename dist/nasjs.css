@@ -1,0 +1,609 @@
+/**
+ * NASjs.css - Beautiful UI Components Styles
+ * @version 1.0.1
+ * @license MIT
+ */
+
+/* ==========================================================================
+   DatePicker Styles
+   ========================================================================== */
+
+.nasjs-datepicker {
+  position: absolute;
+  z-index: 9999;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 320px;
+  user-select: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.nasjs-datepicker.nasjs-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nasjs-dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nasjs-dp-selectors {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  margin: 0 8px;
+}
+
+.nasjs-dp-month,
+.nasjs-dp-year {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.nasjs-dp-month:hover,
+.nasjs-dp-year:hover {
+  border-color: #3b82f6;
+  background: #f9fafb;
+}
+
+.nasjs-dp-month:focus,
+.nasjs-dp-year:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.nasjs-dp-nav {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.nasjs-dp-nav:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.nasjs-dp-nav:active {
+  transform: scale(0.95);
+}
+
+.nasjs-dp-calendar {
+  padding: 16px;
+}
+
+.nasjs-dp-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.nasjs-dp-day-name {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  padding: 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nasjs-dp-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.nasjs-dp-day {
+  aspect-ratio: 1;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasjs-dp-day:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.nasjs-dp-day:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.nasjs-dp-day-other {
+  color: #9ca3af;
+}
+
+.nasjs-dp-today {
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.nasjs-dp-today::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #3b82f6;
+}
+
+.nasjs-dp-selected {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.nasjs-dp-selected::before {
+  display: none;
+}
+
+.nasjs-dp-disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.nasjs-dp-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.nasjs-dp-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nasjs-dp-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.nasjs-dp-btn:active {
+  transform: scale(0.98);
+}
+
+.nasjs-dp-btn:first-child {
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.nasjs-dp-btn:first-child:hover {
+  background: #eff6ff;
+}
+
+/* ==========================================================================
+   Simple TimePicker Styles
+   ========================================================================== */
+
+.nasjs-timepicker-simple {
+  position: absolute;
+  z-index: 9999;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: 280px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
+}
+
+.nasjs-timepicker-simple.nasjs-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nasjs-tp-simple-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.nasjs-tp-simple-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.nasjs-tp-simple-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.nasjs-tp-simple-body {
+  padding: 16px;
+}
+
+.nasjs-tp-simple-select {
+  width: 100%;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 15px;
+  font-family: monospace;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.nasjs-tp-simple-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.nasjs-tp-simple-select option {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.nasjs-tp-simple-select option:hover {
+  background: #f3f4f6;
+}
+
+.nasjs-tp-simple-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.nasjs-tp-simple-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nasjs-tp-simple-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.nasjs-tp-simple-btn:first-child {
+  color: #667eea;
+  border-color: #667eea;
+}
+
+.nasjs-tp-simple-btn:first-child:hover {
+  background: #eff6ff;
+}
+
+.nasjs-tp-simple-btn:active {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   Modal Styles
+   ========================================================================== */
+
+.nasjs-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nasjs-modal-backdrop.nasjs-visible {
+  opacity: 1;
+}
+
+.nasjs-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.nasjs-modal-backdrop.nasjs-visible .nasjs-modal {
+  transform: scale(1);
+}
+
+.nasjs-modal-content {
+  position: relative;
+}
+
+.nasjs-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nasjs-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.nasjs-modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 28px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.nasjs-modal-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.nasjs-modal-close:active {
+  transform: scale(0.95);
+}
+
+.nasjs-modal-body {
+  padding: 24px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.nasjs-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.nasjs-modal-btn {
+  flex: 1;
+  padding: 12px 24px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nasjs-modal-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.nasjs-modal-btn:active {
+  transform: scale(0.98);
+}
+
+.nasjs-modal-btn-primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.nasjs-modal-btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.nasjs-modal-btn-secondary {
+  background: #6b7280;
+  border-color: #6b7280;
+  color: #ffffff;
+}
+
+.nasjs-modal-btn-secondary:hover {
+  background: #4b5563;
+  border-color: #4b5563;
+}
+
+.nasjs-modal-btn-danger {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.nasjs-modal-btn-danger:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.nasjs-confirm-message {
+  margin: 0;
+  font-size: 16px;
+  color: #374151;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .nasjs-datepicker {
+    width: 300px;
+  }
+  
+  .nasjs-dp-day {
+    font-size: 13px;
+  }
+  
+  .nasjs-timepicker-simple {
+    width: 260px;
+  }
+  
+  .nasjs-modal {
+    margin: 0 10px;
+  }
+}
+
+/* ==========================================================================
+   Dark Mode Support
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .nasjs-datepicker,
+  .nasjs-timepicker-simple,
+  .nasjs-modal {
+    background: #1f2937;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  }
+  
+  .nasjs-dp-header,
+  .nasjs-dp-footer,
+  .nasjs-tp-simple-header,
+  .nasjs-tp-simple-footer,
+  .nasjs-modal-header,
+  .nasjs-modal-footer {
+    border-color: #374151;
+  }
+  
+  .nasjs-dp-month,
+  .nasjs-dp-year,
+  .nasjs-dp-btn,
+  .nasjs-tp-simple-select,
+  .nasjs-tp-simple-btn,
+  .nasjs-modal-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+  
+  .nasjs-dp-month:hover,
+  .nasjs-dp-year:hover,
+  .nasjs-dp-btn:hover,
+  .nasjs-tp-simple-btn:hover,
+  .nasjs-modal-btn:hover {
+    background: #4b5563;
+  }
+  
+  .nasjs-tp-simple-select option:hover {
+    background: #4b5563;
+  }
+  
+  .nasjs-dp-nav,
+  .nasjs-tp-simple-close,
+  .nasjs-modal-close {
+    color: #9ca3af;
+  }
+  
+  .nasjs-dp-nav:hover,
+  .nasjs-tp-simple-close:hover,
+  .nasjs-modal-close:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+  
+  .nasjs-dp-day-name,
+  .nasjs-tp-simple-header {
+    color: #9ca3af;
+  }
+  
+  .nasjs-dp-day,
+  .nasjs-modal-title {
+    color: #f9fafb;
+  }
+  
+  .nasjs-dp-day:hover:not(:disabled) {
+    background: #374151;
+  }
+  
+  .nasjs-dp-day-other {
+    color: #6b7280;
+  }
+  
+  .nasjs-modal-body,
+  .nasjs-confirm-message {
+    color: #d1d5db;
+  }
+}
