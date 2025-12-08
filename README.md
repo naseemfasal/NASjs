@@ -34,11 +34,18 @@ npm install nasjs
 yarn add nasjs
 ```
 
-### CDN
+### CDN (jsDelivr - recommended)
 
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nasjs/dist/nasjs.min.css">
 <script src="https://cdn.jsdelivr.net/npm/nasjs/dist/nasjs.min.js"></script>
+```
+
+### CDN (GitHub Pages)
+
+```html
+<link rel="stylesheet" href="https://naseemfasal.github.io/NASjs/dist/nasjs.min.css">
+<script src="https://naseemfasal.github.io/NASjs/dist/nasjs.min.js"></script>
 ```
 
 ### Download
