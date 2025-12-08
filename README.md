@@ -31,10 +31,12 @@
 |-----------|-------------|
 | **DatePicker** | Modern date selection with min/max dates, disabled days, available dates from API |
 | **TimePicker** | Time selection with 12/24 hour format and customizable intervals |
+| **Dropdown** | Searchable dropdown with remote JSON, add button, rich templates, RTL support |
 | **Event Calendar** | Full calendar view with events, popups, and API integration |
 | **Image Gallery** | Lightbox gallery with thumbnails, zoom, and keyboard navigation |
 | **Modal** | Customizable modal dialogs with animations |
 | **Confirm** | SweetAlert-style confirmation dialogs |
+| **Popup** | Form popups for dropdown add functionality |
 | **Live Clock** | Real-time clock display |
 
 ---
@@ -231,7 +233,172 @@ NASjs.timePicker({
 
 ---
 
-## 3. Event Calendar
+## 3. Searchable Dropdown
+
+Powerful dropdown with search, remote data, add button, and rich item templates. Full RTL/Arabic support.
+
+### Basic Usage
+
+```javascript
+// Static data
+const dropdown = NASjs.dropdown({
+  selector: '#my-dropdown',
+  placeholder: 'Select an item...',
+  data: [
+    { id: 1, name: 'Option 1' },
+    { id: 2, name: 'Option 2' },
+    { id: 3, name: 'Option 3' }
+  ],
+  onSelect: (item) => console.log('Selected:', item)
+});
+```
+
+### Remote JSON Data
+
+```javascript
+// Load from API with search
+NASjs.dropdown({
+  selector: '#users-dropdown',
+  remoteUrl: '/api/users',
+  remoteSearchParam: 'search',  // Query param: /api/users?search=john
+  remoteDataKey: 'data',        // Response key containing array
+  valueKey: 'id',
+  labelKey: 'name',
+  minSearchLength: 2,           // Start searching after 2 characters
+  debounceDelay: 300            // Wait 300ms before API call
+});
+
+// Expected JSON response:
+// { "data": [{ "id": 1, "name": "John" }, { "id": 2, "name": "Jane" }] }
+```
+
+### With Add Button & Popup
+
+```javascript
+let dropdown = NASjs.dropdown({
+  selector: '#customer-dropdown',
+  data: [...],
+  addButton: true,
+  addButtonLabel: 'Add Customer',
+  addButtonIcon: '+',
+  onAddClick: (instance) => {
+    // Show popup form
+    NASjs.popup({
+      title: 'Add New Customer',
+      content: `
+        <form id="customer-form">
+          <input type="text" id="name" placeholder="Customer Name" style="width:100%;padding:10px;margin-bottom:10px;">
+          <input type="email" id="email" placeholder="Email" style="width:100%;padding:10px;">
+        </form>
+      `,
+      confirmText: 'Add',
+      onConfirm: () => {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+
+        // Add to dropdown and select
+        const newItem = { id: Date.now(), name: name, email: email };
+        instance.addItem(newItem, true); // true = auto-select
+      }
+    });
+  }
+});
+
+// Programmatically set value after adding
+dropdown.setValue(123);
+```
+
+### Rich Template (Title + Subtitle + Status)
+
+```javascript
+NASjs.dropdown({
+  selector: '#projects-dropdown',
+  template: 'rich',
+  titleKey: 'name',
+  subtitleKey: 'description',
+  statusKey: 'status',
+  imageKey: 'avatar',   // Optional image
+  data: [
+    {
+      id: 1,
+      name: 'Project Alpha',
+      description: 'Main development project',
+      status: 'Active',
+      avatar: '/images/project1.png'
+    },
+    {
+      id: 2,
+      name: 'مشروع بيتا',  // Arabic support
+      description: 'مشروع التطوير الثاني',
+      status: 'معلق'       // Arabic status (Pending)
+    }
+  ]
+});
+```
+
+### RTL / Arabic Support
+
+```javascript
+// Auto-detect RTL from document/element direction
+NASjs.dropdown({
+  selector: '#arabic-dropdown',
+  rtl: 'auto',  // or true/false
+  placeholder: 'اختر عنصر...',
+  searchPlaceholder: 'بحث...',
+  noResultsText: 'لا توجد نتائج',
+  data: [
+    { id: 1, name: 'الخيار الأول' },
+    { id: 2, name: 'الخيار الثاني' }
+  ]
+});
+```
+
+### Dropdown Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `selector` | string | `'.nasjs-dropdown'` | CSS selector or element |
+| `placeholder` | string | `'Select an option...'` | Placeholder text |
+| `searchPlaceholder` | string | `'Search...'` | Search input placeholder |
+| `data` | array | `[]` | Static data array |
+| `valueKey` | string | `'id'` | Object key for value |
+| `labelKey` | string | `'name'` | Object key for label |
+| `remoteUrl` | string | `null` | URL to fetch data |
+| `remoteSearchParam` | string | `'search'` | Search query parameter |
+| `remoteDataKey` | string | `'data'` | Response key (null for root array) |
+| `minSearchLength` | number | `0` | Min chars to trigger search |
+| `addButton` | boolean | `false` | Show add button |
+| `addButtonLabel` | string | `'Add New'` | Add button text |
+| `onAddClick` | function | `null` | Add button callback |
+| `template` | string | `'default'` | `'default'` or `'rich'` |
+| `titleKey` | string | `'name'` | Rich template title key |
+| `subtitleKey` | string | `'subtitle'` | Rich template subtitle key |
+| `statusKey` | string | `'status'` | Rich template status key |
+| `rtl` | string/bool | `'auto'` | RTL mode: `'auto'`, `true`, `false` |
+| `styles.theme` | string | `'light'` | `'light'` or `'dark'` |
+| `onSelect` | function | `null` | Selection callback |
+| `onChange` | function | `null` | Value change callback |
+
+### Dropdown Methods
+
+```javascript
+const dropdown = NASjs.dropdown({ ... });
+
+dropdown.setValue(123);        // Set value programmatically
+dropdown.getValue();           // Get current value
+dropdown.getSelectedItem();    // Get full selected object
+dropdown.setData(newData);     // Replace all data
+dropdown.addItem(item, true);  // Add item, optionally select it
+dropdown.clear();              // Clear selection
+dropdown.refresh();            // Reload remote data
+dropdown.openDropdown();       // Open programmatically
+dropdown.closeDropdown();      // Close programmatically
+dropdown.destroy();            // Remove dropdown
+```
+
+---
+
+## 4. Event Calendar
 
 Full-featured calendar with event display.
 
@@ -368,7 +535,7 @@ calendar.goToToday();
 
 ---
 
-## 4. Image Gallery - Modern Lightbox
+## 5. Image Gallery - Modern Lightbox
 
 Beautiful image gallery with thumbnails and zoom.
 
@@ -435,7 +602,7 @@ Beautiful image gallery with thumbnails and zoom.
 
 ---
 
-## 5. Modal - Customizable Dialogs
+## 6. Modal - Customizable Dialogs
 
 ```javascript
 const modal = NASjs.modal({
@@ -471,7 +638,7 @@ modal.close();
 
 ---
 
-## 6. Confirm - SweetAlert Alternative
+## 7. Confirm - SweetAlert Alternative
 
 Beautiful confirmation dialogs without dependencies.
 
@@ -504,7 +671,7 @@ NASjs.confirm({
 
 ---
 
-## 7. Live Clock
+## 8. Live Clock
 
 ```javascript
 const clock = NASjs.liveClock('#clock-container', {

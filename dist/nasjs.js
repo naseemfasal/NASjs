@@ -3,7 +3,7 @@
  * Modern DatePicker, TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Dialogs
  * A lightweight jQuery UI & SweetAlert alternative for modern web applications
  *
- * @version 1.3.0
+ * @version 1.4.0
  * @license MIT
  * @author Naseem Fasal Palappetty
  * @homepage https://naseemfasal.github.io/NASjs/
@@ -14,7 +14,7 @@
   'use strict';
 
   const NASjs = {
-    version: '1.3.0',
+    version: '1.4.0',
     author: 'Naseem Fasal Palappetty',
     
     /**
@@ -1407,9 +1407,942 @@
       }
 
       return new ImageGallery(config);
+    },
+
+    /**
+     * Searchable Dropdown Component
+     * Features: Remote JSON, Add button with popup, Rich item templates, RTL support
+     *
+     * @example Basic usage:
+     * NASjs.dropdown({
+     *   selector: '#my-dropdown',
+     *   data: [{ id: 1, name: 'Item 1' }]
+     * });
+     *
+     * @example Remote JSON:
+     * NASjs.dropdown({
+     *   selector: '#my-dropdown',
+     *   remoteUrl: '/api/items',
+     *   remoteSearchParam: 'q',
+     *   valueKey: 'id',
+     *   labelKey: 'name'
+     * });
+     *
+     * @example With Add button and rich template:
+     * NASjs.dropdown({
+     *   selector: '#my-dropdown',
+     *   data: [...],
+     *   addButton: true,
+     *   addButtonLabel: 'Add New Item',
+     *   onAddClick: () => { ... },
+     *   template: 'rich',
+     *   titleKey: 'name',
+     *   subtitleKey: 'description',
+     *   statusKey: 'status'
+     * });
+     */
+    dropdown: function(options = {}) {
+      const defaults = {
+        selector: '.nasjs-dropdown',
+        placeholder: 'Select an option...',
+        searchPlaceholder: 'Search...',
+        noResultsText: 'No results found',
+        loadingText: 'Loading...',
+
+        // Data options
+        data: [],                    // Static data array
+        valueKey: 'id',              // Key for value
+        labelKey: 'name',            // Key for display label
+
+        // Remote JSON options
+        remoteUrl: null,             // URL to fetch data from
+        remoteSearchParam: 'search', // Query parameter for search
+        remoteMethod: 'GET',         // HTTP method
+        remoteHeaders: {},           // Additional headers
+        remoteDataKey: 'data',       // Key in response containing array (null for root array)
+        minSearchLength: 0,          // Minimum characters to trigger remote search
+        debounceDelay: 300,          // Debounce delay for remote search
+
+        // Add button options
+        addButton: false,            // Show add button
+        addButtonLabel: 'Add New',   // Button label
+        addButtonIcon: '+',          // Button icon
+        onAddClick: null,            // Callback when add button clicked
+
+        // Rich template options
+        template: 'default',         // 'default' or 'rich'
+        titleKey: 'name',            // Key for title in rich template
+        subtitleKey: 'subtitle',     // Key for subtitle in rich template
+        statusKey: 'status',         // Key for status in rich template
+        imageKey: 'image',           // Key for image in rich template
+
+        // Style customization
+        styles: {
+          width: null,               // Custom width
+          maxHeight: '300px',        // Max dropdown height
+          itemPadding: null,         // Custom item padding
+          fontSize: null,            // Custom font size
+          borderRadius: null,        // Custom border radius
+          theme: 'light'             // 'light' or 'dark'
+        },
+
+        // RTL and language support
+        rtl: 'auto',                 // 'auto', true, or false
+        direction: null,             // Force direction: 'ltr' or 'rtl'
+
+        // Callbacks
+        onSelect: null,              // (item, instance) => {}
+        onChange: null,              // (value, item, instance) => {}
+        onOpen: null,                // (instance) => {}
+        onClose: null,               // (instance) => {}
+        onSearch: null,              // (query, instance) => {}
+        onLoad: null,                // (data, instance) => {}
+        onError: null,               // (error, instance) => {}
+
+        // Animation
+        animationDuration: 200
+      };
+
+      const config = { ...defaults, ...options };
+      if (options.styles) {
+        config.styles = { ...defaults.styles, ...options.styles };
+      }
+
+      class Dropdown {
+        constructor(config) {
+          this.config = config;
+          this.isOpen = false;
+          this.data = [...config.data];
+          this.filteredData = [...this.data];
+          this.selectedItem = null;
+          this.selectedValue = null;
+          this.searchQuery = '';
+          this.debounceTimer = null;
+          this.isLoading = false;
+          this.instances = [];
+          this.init();
+        }
+
+        init() {
+          const elements = typeof this.config.selector === 'string'
+            ? document.querySelectorAll(this.config.selector)
+            : [this.config.selector];
+
+          elements.forEach(element => {
+            this.createDropdown(element);
+          });
+        }
+
+        // Detect RTL based on content or document
+        detectRTL(element) {
+          if (this.config.direction) {
+            return this.config.direction === 'rtl';
+          }
+          if (this.config.rtl === true) return true;
+          if (this.config.rtl === false) return false;
+
+          // Auto-detect from element or document
+          const computedStyle = window.getComputedStyle(element);
+          if (computedStyle.direction === 'rtl') return true;
+
+          // Check document direction
+          const docDir = document.documentElement.getAttribute('dir') ||
+                        document.body.getAttribute('dir') ||
+                        document.documentElement.style.direction ||
+                        document.body.style.direction;
+          return docDir === 'rtl';
+        }
+
+        // Check if text contains RTL characters (Arabic, Hebrew, etc.)
+        containsRTL(text) {
+          if (!text) return false;
+          const rtlRegex = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+          return rtlRegex.test(text);
+        }
+
+        createDropdown(element) {
+          const isRTL = this.detectRTL(element);
+          const wrapper = document.createElement('div');
+          wrapper.className = `nasjs-dropdown-wrapper${isRTL ? ' nasjs-rtl' : ''}`;
+          wrapper.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+
+          // Apply custom styles
+          if (this.config.styles.width) {
+            wrapper.style.width = this.config.styles.width;
+          }
+          if (this.config.styles.theme === 'dark') {
+            wrapper.classList.add('nasjs-dropdown-dark');
+          }
+
+          // Hidden input for form submission
+          const hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = element.getAttribute('name') || element.id || '';
+          hiddenInput.className = 'nasjs-dropdown-value';
+
+          // Main trigger button
+          const trigger = document.createElement('div');
+          trigger.className = 'nasjs-dropdown-trigger';
+          trigger.setAttribute('tabindex', '0');
+          trigger.setAttribute('role', 'combobox');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.setAttribute('aria-haspopup', 'listbox');
+
+          if (this.config.styles.borderRadius) {
+            trigger.style.borderRadius = this.config.styles.borderRadius;
+          }
+          if (this.config.styles.fontSize) {
+            trigger.style.fontSize = this.config.styles.fontSize;
+          }
+
+          const selectedText = document.createElement('span');
+          selectedText.className = 'nasjs-dropdown-selected';
+          selectedText.textContent = this.config.placeholder;
+
+          const arrow = document.createElement('span');
+          arrow.className = 'nasjs-dropdown-arrow';
+          arrow.innerHTML = '&#9662;';
+
+          trigger.appendChild(selectedText);
+          trigger.appendChild(arrow);
+
+          // Dropdown panel
+          const panel = document.createElement('div');
+          panel.className = 'nasjs-dropdown-panel';
+          panel.style.maxHeight = this.config.styles.maxHeight;
+          panel.style.display = 'none';
+          panel.setAttribute('role', 'listbox');
+
+          if (this.config.styles.borderRadius) {
+            panel.style.borderRadius = this.config.styles.borderRadius;
+          }
+
+          // Search input
+          const searchWrapper = document.createElement('div');
+          searchWrapper.className = 'nasjs-dropdown-search-wrapper';
+
+          const searchInput = document.createElement('input');
+          searchInput.type = 'text';
+          searchInput.className = 'nasjs-dropdown-search';
+          searchInput.placeholder = this.config.searchPlaceholder;
+          searchInput.setAttribute('aria-label', 'Search');
+
+          searchWrapper.appendChild(searchInput);
+
+          // Add button (if enabled)
+          if (this.config.addButton) {
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'nasjs-dropdown-add-btn';
+            addBtn.innerHTML = `<span class="nasjs-dropdown-add-icon">${this.config.addButtonIcon}</span><span>${this.config.addButtonLabel}</span>`;
+            addBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (this.config.onAddClick) {
+                this.config.onAddClick(this);
+              }
+            });
+            searchWrapper.appendChild(addBtn);
+          }
+
+          // Items container
+          const itemsContainer = document.createElement('div');
+          itemsContainer.className = 'nasjs-dropdown-items';
+
+          // Loading indicator
+          const loadingEl = document.createElement('div');
+          loadingEl.className = 'nasjs-dropdown-loading';
+          loadingEl.textContent = this.config.loadingText;
+          loadingEl.style.display = 'none';
+
+          // No results message
+          const noResultsEl = document.createElement('div');
+          noResultsEl.className = 'nasjs-dropdown-no-results';
+          noResultsEl.textContent = this.config.noResultsText;
+          noResultsEl.style.display = 'none';
+
+          panel.appendChild(searchWrapper);
+          panel.appendChild(loadingEl);
+          panel.appendChild(itemsContainer);
+          panel.appendChild(noResultsEl);
+
+          wrapper.appendChild(hiddenInput);
+          wrapper.appendChild(trigger);
+          wrapper.appendChild(panel);
+
+          // Replace original element
+          element.parentNode.insertBefore(wrapper, element);
+          element.style.display = 'none';
+
+          // Store instance data
+          const instanceData = {
+            wrapper,
+            trigger,
+            panel,
+            searchInput,
+            itemsContainer,
+            loadingEl,
+            noResultsEl,
+            hiddenInput,
+            selectedText,
+            originalElement: element,
+            isRTL
+          };
+
+          this.instances.push(instanceData);
+
+          // Attach events
+          this.attachEvents(instanceData);
+
+          // Initial render
+          this.renderItems(instanceData);
+
+          // Load remote data if URL provided and no static data
+          if (this.config.remoteUrl && this.data.length === 0) {
+            this.loadRemoteData('', instanceData);
+          }
+        }
+
+        attachEvents(instance) {
+          const { trigger, panel, searchInput, wrapper } = instance;
+
+          // Toggle dropdown
+          trigger.addEventListener('click', () => {
+            if (this.isOpen) {
+              this.close(instance);
+            } else {
+              this.open(instance);
+            }
+          });
+
+          // Keyboard navigation
+          trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+              e.preventDefault();
+              if (!this.isOpen) {
+                this.open(instance);
+              }
+            } else if (e.key === 'Escape') {
+              this.close(instance);
+            }
+          });
+
+          // Search input
+          searchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            this.searchQuery = query;
+
+            if (this.config.onSearch) {
+              this.config.onSearch(query, this);
+            }
+
+            if (this.config.remoteUrl) {
+              // Debounced remote search
+              clearTimeout(this.debounceTimer);
+              if (query.length >= this.config.minSearchLength) {
+                this.debounceTimer = setTimeout(() => {
+                  this.loadRemoteData(query, instance);
+                }, this.config.debounceDelay);
+              } else if (query.length === 0) {
+                this.loadRemoteData('', instance);
+              }
+            } else {
+              // Local filtering
+              this.filterLocalData(query, instance);
+            }
+          });
+
+          searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              this.close(instance);
+              trigger.focus();
+            } else if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              const firstItem = instance.itemsContainer.querySelector('.nasjs-dropdown-item');
+              if (firstItem) firstItem.focus();
+            }
+          });
+
+          // Close on outside click
+          document.addEventListener('click', (e) => {
+            if (this.isOpen && !wrapper.contains(e.target)) {
+              this.close(instance);
+            }
+          });
+        }
+
+        open(instance) {
+          const { panel, searchInput, trigger } = instance;
+
+          this.isOpen = true;
+          panel.style.display = 'block';
+          trigger.setAttribute('aria-expanded', 'true');
+          trigger.classList.add('nasjs-dropdown-open');
+
+          setTimeout(() => {
+            panel.classList.add('nasjs-dropdown-panel-open');
+            searchInput.focus();
+          }, 10);
+
+          if (this.config.onOpen) {
+            this.config.onOpen(this);
+          }
+        }
+
+        close(instance) {
+          const { panel, trigger, searchInput } = instance;
+
+          this.isOpen = false;
+          panel.classList.remove('nasjs-dropdown-panel-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.classList.remove('nasjs-dropdown-open');
+
+          setTimeout(() => {
+            panel.style.display = 'none';
+            searchInput.value = '';
+            this.searchQuery = '';
+            this.filteredData = [...this.data];
+            this.renderItems(instance);
+          }, this.config.animationDuration);
+
+          if (this.config.onClose) {
+            this.config.onClose(this);
+          }
+        }
+
+        filterLocalData(query, instance) {
+          const lowerQuery = query.toLowerCase();
+
+          this.filteredData = this.data.filter(item => {
+            const label = String(item[this.config.labelKey] || '').toLowerCase();
+            const title = String(item[this.config.titleKey] || '').toLowerCase();
+            const subtitle = String(item[this.config.subtitleKey] || '').toLowerCase();
+
+            return label.includes(lowerQuery) ||
+                   title.includes(lowerQuery) ||
+                   subtitle.includes(lowerQuery);
+          });
+
+          this.renderItems(instance);
+        }
+
+        async loadRemoteData(query, instance) {
+          const { loadingEl, noResultsEl, itemsContainer } = instance;
+
+          this.isLoading = true;
+          loadingEl.style.display = 'block';
+          noResultsEl.style.display = 'none';
+          itemsContainer.innerHTML = '';
+
+          try {
+            let url = this.config.remoteUrl;
+
+            if (this.config.remoteMethod === 'GET') {
+              const separator = url.includes('?') ? '&' : '?';
+              url = `${url}${separator}${this.config.remoteSearchParam}=${encodeURIComponent(query)}`;
+            }
+
+            const fetchOptions = {
+              method: this.config.remoteMethod,
+              headers: {
+                'Content-Type': 'application/json',
+                ...this.config.remoteHeaders
+              }
+            };
+
+            if (this.config.remoteMethod === 'POST') {
+              fetchOptions.body = JSON.stringify({
+                [this.config.remoteSearchParam]: query
+              });
+            }
+
+            const response = await fetch(url, fetchOptions);
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // Extract data from response
+            let data = this.config.remoteDataKey ? result[this.config.remoteDataKey] : result;
+
+            if (!Array.isArray(data)) {
+              data = [];
+            }
+
+            this.data = data;
+            this.filteredData = [...data];
+
+            if (this.config.onLoad) {
+              this.config.onLoad(data, this);
+            }
+
+          } catch (error) {
+            console.error('NASjs Dropdown: Error loading remote data', error);
+            this.data = [];
+            this.filteredData = [];
+
+            if (this.config.onError) {
+              this.config.onError(error, this);
+            }
+          } finally {
+            this.isLoading = false;
+            loadingEl.style.display = 'none';
+            this.renderItems(instance);
+          }
+        }
+
+        renderItems(instance) {
+          const { itemsContainer, noResultsEl, isRTL } = instance;
+
+          itemsContainer.innerHTML = '';
+
+          if (this.filteredData.length === 0 && !this.isLoading) {
+            noResultsEl.style.display = 'block';
+            return;
+          }
+
+          noResultsEl.style.display = 'none';
+
+          this.filteredData.forEach((item, index) => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'nasjs-dropdown-item';
+            itemEl.setAttribute('role', 'option');
+            itemEl.setAttribute('tabindex', '0');
+            itemEl.dataset.index = index;
+            itemEl.dataset.value = item[this.config.valueKey];
+
+            // Check for RTL content
+            const label = item[this.config.labelKey] || '';
+            if (this.containsRTL(label)) {
+              itemEl.classList.add('nasjs-item-rtl');
+            }
+
+            if (this.config.styles.itemPadding) {
+              itemEl.style.padding = this.config.styles.itemPadding;
+            }
+            if (this.config.styles.fontSize) {
+              itemEl.style.fontSize = this.config.styles.fontSize;
+            }
+
+            // Check if selected
+            if (this.selectedValue !== null &&
+                String(item[this.config.valueKey]) === String(this.selectedValue)) {
+              itemEl.classList.add('nasjs-dropdown-item-selected');
+              itemEl.setAttribute('aria-selected', 'true');
+            }
+
+            // Render based on template
+            if (this.config.template === 'rich') {
+              itemEl.innerHTML = this.renderRichItem(item);
+            } else {
+              itemEl.innerHTML = this.renderDefaultItem(item);
+            }
+
+            // Click event
+            itemEl.addEventListener('click', () => {
+              this.selectItem(item, instance);
+            });
+
+            // Keyboard navigation
+            itemEl.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.selectItem(item, instance);
+              } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = itemEl.nextElementSibling;
+                if (next) next.focus();
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = itemEl.previousElementSibling;
+                if (prev) {
+                  prev.focus();
+                } else {
+                  instance.searchInput.focus();
+                }
+              } else if (e.key === 'Escape') {
+                this.close(instance);
+                instance.trigger.focus();
+              }
+            });
+
+            itemsContainer.appendChild(itemEl);
+          });
+        }
+
+        renderDefaultItem(item) {
+          const label = item[this.config.labelKey] || '';
+          return `<span class="nasjs-dropdown-item-label">${this.escapeHtml(label)}</span>`;
+        }
+
+        renderRichItem(item) {
+          const title = item[this.config.titleKey] || '';
+          const subtitle = item[this.config.subtitleKey] || '';
+          const status = item[this.config.statusKey] || '';
+          const image = item[this.config.imageKey] || '';
+
+          let html = '<div class="nasjs-dropdown-item-rich">';
+
+          if (image) {
+            html += `<img src="${this.escapeHtml(image)}" alt="" class="nasjs-dropdown-item-image" />`;
+          }
+
+          html += '<div class="nasjs-dropdown-item-content">';
+          html += `<div class="nasjs-dropdown-item-title">${this.escapeHtml(title)}</div>`;
+
+          if (subtitle) {
+            html += `<div class="nasjs-dropdown-item-subtitle">${this.escapeHtml(subtitle)}</div>`;
+          }
+
+          html += '</div>';
+
+          if (status) {
+            const statusClass = this.getStatusClass(status);
+            html += `<span class="nasjs-dropdown-item-status ${statusClass}">${this.escapeHtml(status)}</span>`;
+          }
+
+          html += '</div>';
+          return html;
+        }
+
+        getStatusClass(status) {
+          const statusLower = String(status).toLowerCase();
+          if (['active', 'success', 'completed', 'done', 'نشط', 'مكتمل'].includes(statusLower)) {
+            return 'nasjs-status-success';
+          }
+          if (['inactive', 'error', 'failed', 'غير نشط', 'فشل'].includes(statusLower)) {
+            return 'nasjs-status-error';
+          }
+          if (['pending', 'warning', 'processing', 'معلق', 'قيد المعالجة'].includes(statusLower)) {
+            return 'nasjs-status-warning';
+          }
+          return 'nasjs-status-default';
+        }
+
+        selectItem(item, instance) {
+          const { hiddenInput, selectedText, trigger } = instance;
+
+          this.selectedItem = item;
+          this.selectedValue = item[this.config.valueKey];
+
+          hiddenInput.value = this.selectedValue;
+          selectedText.textContent = item[this.config.labelKey] || '';
+          selectedText.classList.add('nasjs-dropdown-has-value');
+
+          // Check for RTL in selected text
+          if (this.containsRTL(selectedText.textContent)) {
+            selectedText.classList.add('nasjs-item-rtl');
+          } else {
+            selectedText.classList.remove('nasjs-item-rtl');
+          }
+
+          // Update selected state in items
+          this.renderItems(instance);
+
+          this.close(instance);
+
+          if (this.config.onSelect) {
+            this.config.onSelect(item, this);
+          }
+
+          if (this.config.onChange) {
+            this.config.onChange(this.selectedValue, item, this);
+          }
+
+          // Trigger change event on hidden input
+          hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
+        // Public API methods
+
+        /**
+         * Set value programmatically
+         * @param {*} value - The value to set
+         */
+        setValue(value) {
+          const item = this.data.find(d => String(d[this.config.valueKey]) === String(value));
+          if (item && this.instances.length > 0) {
+            this.selectItem(item, this.instances[0]);
+          }
+        }
+
+        /**
+         * Get current value
+         * @returns {*} Current selected value
+         */
+        getValue() {
+          return this.selectedValue;
+        }
+
+        /**
+         * Get current selected item
+         * @returns {Object} Current selected item object
+         */
+        getSelectedItem() {
+          return this.selectedItem;
+        }
+
+        /**
+         * Set data array
+         * @param {Array} data - New data array
+         */
+        setData(data) {
+          this.data = data;
+          this.filteredData = [...data];
+          this.instances.forEach(instance => {
+            this.renderItems(instance);
+          });
+        }
+
+        /**
+         * Add single item to data
+         * @param {Object} item - Item to add
+         * @param {boolean} select - Whether to select the added item
+         */
+        addItem(item, select = false) {
+          this.data.push(item);
+          this.filteredData = [...this.data];
+          this.instances.forEach(instance => {
+            this.renderItems(instance);
+          });
+          if (select && this.instances.length > 0) {
+            this.selectItem(item, this.instances[0]);
+          }
+        }
+
+        /**
+         * Clear selection
+         */
+        clear() {
+          this.selectedItem = null;
+          this.selectedValue = null;
+          this.instances.forEach(instance => {
+            instance.hiddenInput.value = '';
+            instance.selectedText.textContent = this.config.placeholder;
+            instance.selectedText.classList.remove('nasjs-dropdown-has-value', 'nasjs-item-rtl');
+            this.renderItems(instance);
+          });
+        }
+
+        /**
+         * Refresh data from remote URL
+         */
+        refresh() {
+          if (this.config.remoteUrl && this.instances.length > 0) {
+            this.loadRemoteData(this.searchQuery, this.instances[0]);
+          }
+        }
+
+        /**
+         * Destroy the dropdown
+         */
+        destroy() {
+          this.instances.forEach(instance => {
+            const { wrapper, originalElement } = instance;
+            originalElement.style.display = '';
+            wrapper.parentNode.removeChild(wrapper);
+          });
+          this.instances = [];
+        }
+
+        /**
+         * Open dropdown panel
+         */
+        openDropdown() {
+          if (this.instances.length > 0 && !this.isOpen) {
+            this.open(this.instances[0]);
+          }
+        }
+
+        /**
+         * Close dropdown panel
+         */
+        closeDropdown() {
+          if (this.instances.length > 0 && this.isOpen) {
+            this.close(this.instances[0]);
+          }
+        }
+      }
+
+      return new Dropdown(config);
+    },
+
+    /**
+     * Popup/Modal Helper for Dropdown Add functionality
+     * Works with existing NASjs.modal or standalone
+     *
+     * @example
+     * const popup = NASjs.popup({
+     *   title: 'Add New Item',
+     *   content: '<form id="add-form">...</form>',
+     *   onConfirm: () => { ... }
+     * });
+     */
+    popup: function(options = {}) {
+      const defaults = {
+        title: '',
+        content: '',
+        width: '500px',
+        showClose: true,
+        showFooter: true,
+        confirmText: 'Save',
+        cancelText: 'Cancel',
+        rtl: 'auto',
+        onOpen: null,
+        onClose: null,
+        onConfirm: null,
+        onCancel: null,
+        className: ''
+      };
+
+      const config = { ...defaults, ...options };
+
+      // Detect RTL
+      const isRTL = config.rtl === true ||
+                   (config.rtl === 'auto' &&
+                    (document.documentElement.dir === 'rtl' || document.body.dir === 'rtl'));
+
+      const overlay = document.createElement('div');
+      overlay.className = 'nasjs-popup-overlay';
+
+      const popup = document.createElement('div');
+      popup.className = `nasjs-popup ${config.className}${isRTL ? ' nasjs-rtl' : ''}`;
+      popup.style.width = config.width;
+      popup.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
+      popup.setAttribute('role', 'dialog');
+      popup.setAttribute('aria-modal', 'true');
+
+      // Header
+      if (config.title || config.showClose) {
+        const header = document.createElement('div');
+        header.className = 'nasjs-popup-header';
+
+        if (config.title) {
+          const title = document.createElement('h3');
+          title.className = 'nasjs-popup-title';
+          title.textContent = config.title;
+          header.appendChild(title);
+        }
+
+        if (config.showClose) {
+          const closeBtn = document.createElement('button');
+          closeBtn.type = 'button';
+          closeBtn.className = 'nasjs-popup-close';
+          closeBtn.innerHTML = '&times;';
+          closeBtn.setAttribute('aria-label', 'Close');
+          closeBtn.addEventListener('click', () => close());
+          header.appendChild(closeBtn);
+        }
+
+        popup.appendChild(header);
+      }
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'nasjs-popup-body';
+
+      if (typeof config.content === 'string') {
+        body.innerHTML = config.content;
+      } else if (config.content instanceof HTMLElement) {
+        body.appendChild(config.content);
+      }
+
+      popup.appendChild(body);
+
+      // Footer
+      if (config.showFooter) {
+        const footer = document.createElement('div');
+        footer.className = 'nasjs-popup-footer';
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'nasjs-popup-btn nasjs-popup-btn-cancel';
+        cancelBtn.textContent = config.cancelText;
+        cancelBtn.addEventListener('click', () => {
+          if (config.onCancel) config.onCancel();
+          close();
+        });
+
+        const confirmBtn = document.createElement('button');
+        confirmBtn.type = 'button';
+        confirmBtn.className = 'nasjs-popup-btn nasjs-popup-btn-confirm';
+        confirmBtn.textContent = config.confirmText;
+        confirmBtn.addEventListener('click', () => {
+          if (config.onConfirm) {
+            const result = config.onConfirm();
+            if (result !== false) close();
+          } else {
+            close();
+          }
+        });
+
+        footer.appendChild(cancelBtn);
+        footer.appendChild(confirmBtn);
+        popup.appendChild(footer);
+      }
+
+      overlay.appendChild(popup);
+
+      function open() {
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(() => {
+          overlay.classList.add('nasjs-popup-visible');
+          popup.classList.add('nasjs-popup-visible');
+        }, 10);
+
+        if (config.onOpen) config.onOpen(popup, body);
+
+        // Close on overlay click
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) close();
+        });
+
+        // Close on Escape
+        const escHandler = (e) => {
+          if (e.key === 'Escape') {
+            close();
+            document.removeEventListener('keydown', escHandler);
+          }
+        };
+        document.addEventListener('keydown', escHandler);
+      }
+
+      function close() {
+        overlay.classList.remove('nasjs-popup-visible');
+        popup.classList.remove('nasjs-popup-visible');
+
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+          document.body.style.overflow = '';
+          if (config.onClose) config.onClose();
+        }, 300);
+      }
+
+      // Auto-open
+      open();
+
+      return {
+        popup,
+        body,
+        open,
+        close,
+        getElement: () => popup,
+        getBody: () => body
+      };
     }
   };
-  
+
   // Export for different environments
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = NASjs;

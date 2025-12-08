@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NASjs v1.2.0 - Modern DatePicker, TimePicker, Event Calendar, Image Gallery, Modal & Confirm Dialogs | jQuery UI & SweetAlert Alternative</title>
+  <title>NASjs v1.4.0 - Modern DatePicker, TimePicker, Dropdown, Event Calendar, Image Gallery, Modal & Confirm Dialogs | jQuery UI & SweetAlert Alternative</title>
   <meta name="description" content="NASjs - Modern, lightweight UI components. DatePicker (jQuery UI alternative), TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Popup (SweetAlert alternative). Zero dependencies, works with React, Vue, Angular.">
   <meta name="keywords" content="datepicker, timepicker, calendar, event calendar, image gallery, lightbox, modal, popup, confirm, sweetalert alternative, jquery ui alternative, vanilla js, javascript, ui components">
   <meta name="author" content="Naseem Fasal Palappetty">
@@ -366,7 +366,7 @@
 <body>
   <!-- Header -->
   <header class="header">
-    <h1>NASjs v1.2.0</h1>
+    <h1>NASjs v1.4.0</h1>
     <p class="tagline">Modern, Lightweight UI Components - Zero Dependencies</p>
     <div class="badges">
       <span>jQuery UI Alternative</span>
@@ -388,6 +388,7 @@
         <a href="#installation" class="nav-link">Installation</a>
         <a href="#datepicker" class="nav-link">DatePicker</a>
         <a href="#timepicker" class="nav-link">TimePicker</a>
+        <a href="#dropdown" class="nav-link">Dropdown</a>
         <a href="#calendar" class="nav-link">Event Calendar</a>
         <a href="#gallery" class="nav-link">Image Gallery</a>
         <a href="#modal" class="nav-link">Modal</a>
@@ -414,10 +415,10 @@ yarn add nasjs
         <div class="demo-title">CDN (Recommended)</div>
         <div class="code-block">
 <span class="comment">&lt;!-- CSS --&gt;</span>
-&lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"https://cdn.jsdelivr.net/npm/nasjs@1.2.0/dist/nasjs.min.css"</span>&gt;
+&lt;link rel=<span class="string">"stylesheet"</span> href=<span class="string">"https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.css"</span>&gt;
 
 <span class="comment">&lt;!-- JavaScript --&gt;</span>
-&lt;script src=<span class="string">"https://cdn.jsdelivr.net/npm/nasjs@1.2.0/dist/nasjs.min.js"</span>&gt;&lt;/script&gt;
+&lt;script src=<span class="string">"https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.js"</span>&gt;&lt;/script&gt;
         </div>
       </div>
 
@@ -544,6 +545,80 @@ NASjs.<span class="function">timePicker</span>({
   <span class="keyword">format</span>: <span class="string">'12'</span>,      <span class="comment">// '12' or '24'</span>
   <span class="keyword">interval</span>: 30,       <span class="comment">// 15, 30, 60, 120</span>
   <span class="keyword">onSelect</span>: (time, input) => console.log(time)
+});
+      </div>
+    </section>
+
+    <!-- Searchable Dropdown -->
+    <section id="dropdown" class="section">
+      <h2 class="section-title">Searchable Dropdown <span class="badge badge-new">NEW</span></h2>
+      <p class="section-desc">Powerful dropdown with search, remote JSON, add button, rich templates, and full RTL/Arabic support.</p>
+
+      <div class="demo-grid">
+        <div class="demo-box">
+          <div class="demo-title">Basic Dropdown</div>
+          <div id="basic-dropdown"></div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-title">Rich Template (with Status)</div>
+          <div id="rich-dropdown"></div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-title">With Add Button</div>
+          <div id="add-dropdown"></div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-title">Arabic / RTL Support</div>
+          <div id="arabic-dropdown" dir="rtl"></div>
+        </div>
+      </div>
+
+      <div class="code-block">
+<span class="comment">// Basic dropdown</span>
+NASjs.<span class="function">dropdown</span>({
+  selector: <span class="string">'#basic-dropdown'</span>,
+  placeholder: <span class="string">'Select a country...'</span>,
+  data: [
+    { id: 1, name: <span class="string">'United States'</span> },
+    { id: 2, name: <span class="string">'United Kingdom'</span> }
+  ]
+});
+
+<span class="comment">// Rich template with status</span>
+NASjs.<span class="function">dropdown</span>({
+  selector: <span class="string">'#rich-dropdown'</span>,
+  template: <span class="string">'rich'</span>,
+  titleKey: <span class="string">'name'</span>,
+  subtitleKey: <span class="string">'role'</span>,
+  statusKey: <span class="string">'status'</span>,
+  data: [{ id: 1, name: <span class="string">'John'</span>, role: <span class="string">'Developer'</span>, status: <span class="string">'Active'</span> }]
+});
+
+<span class="comment">// With add button</span>
+<span class="keyword">let</span> dropdown = NASjs.<span class="function">dropdown</span>({
+  selector: <span class="string">'#add-dropdown'</span>,
+  addButton: <span class="keyword">true</span>,
+  addButtonLabel: <span class="string">'Add Customer'</span>,
+  onAddClick: (instance) => {
+    NASjs.<span class="function">popup</span>({
+      title: <span class="string">'Add Customer'</span>,
+      content: <span class="string">'&lt;input id="name" placeholder="Name"&gt;'</span>,
+      onConfirm: () => {
+        instance.<span class="function">addItem</span>({ id: Date.now(), name: document.getElementById(<span class="string">'name'</span>).value }, <span class="keyword">true</span>);
+      }
+    });
+  }
+});
+
+<span class="comment">// Remote JSON (API)</span>
+NASjs.<span class="function">dropdown</span>({
+  selector: <span class="string">'#api-dropdown'</span>,
+  remoteUrl: <span class="string">'/api/users'</span>,
+  remoteSearchParam: <span class="string">'search'</span>,
+  remoteDataKey: <span class="string">'data'</span>
 });
       </div>
     </section>
@@ -779,6 +854,81 @@ clock.start();
       NASjs.timePicker({ selector: '.demo-time-12', format: '12', interval: 30 });
       NASjs.timePicker({ selector: '.demo-time-24', format: '24', interval: 60 });
       NASjs.timePicker({ selector: '.demo-time-15', format: '12', interval: 15 });
+
+      // Dropdown demos
+      NASjs.dropdown({
+        selector: '#basic-dropdown',
+        placeholder: 'Select a country...',
+        data: [
+          { id: 1, name: 'United States' },
+          { id: 2, name: 'United Kingdom' },
+          { id: 3, name: 'Germany' },
+          { id: 4, name: 'France' },
+          { id: 5, name: 'Japan' },
+          { id: 6, name: 'Australia' },
+          { id: 7, name: 'Canada' },
+          { id: 8, name: 'Brazil' }
+        ],
+        onSelect: (item) => console.log('Selected country:', item)
+      });
+
+      NASjs.dropdown({
+        selector: '#rich-dropdown',
+        placeholder: 'Select a team member...',
+        template: 'rich',
+        titleKey: 'name',
+        subtitleKey: 'role',
+        statusKey: 'status',
+        data: [
+          { id: 1, name: 'John Smith', role: 'Senior Developer', status: 'Active' },
+          { id: 2, name: 'Sarah Johnson', role: 'UX Designer', status: 'Active' },
+          { id: 3, name: 'Mike Wilson', role: 'Project Manager', status: 'Pending' },
+          { id: 4, name: 'Emily Brown', role: 'QA Engineer', status: 'Inactive' }
+        ],
+        onSelect: (item) => console.log('Selected member:', item)
+      });
+
+      window.addDropdown = NASjs.dropdown({
+        selector: '#add-dropdown',
+        placeholder: 'Select a customer...',
+        addButton: true,
+        addButtonLabel: 'Add Customer',
+        data: [
+          { id: 1, name: 'Acme Corporation' },
+          { id: 2, name: 'TechStart Inc.' },
+          { id: 3, name: 'Global Solutions' }
+        ],
+        onAddClick: (instance) => {
+          NASjs.popup({
+            title: 'Add New Customer',
+            content: '<div style="padding: 10px 0;"><input type="text" id="new-customer-name" placeholder="Customer Name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"></div>',
+            confirmText: 'Add',
+            onConfirm: () => {
+              const name = document.getElementById('new-customer-name').value;
+              if (name) {
+                instance.addItem({ id: Date.now(), name: name }, true);
+              }
+            }
+          });
+        },
+        onSelect: (item) => console.log('Selected customer:', item)
+      });
+
+      NASjs.dropdown({
+        selector: '#arabic-dropdown',
+        placeholder: 'اختر مدينة...',
+        searchPlaceholder: 'بحث...',
+        noResultsText: 'لا توجد نتائج',
+        rtl: true,
+        data: [
+          { id: 1, name: 'دبي' },
+          { id: 2, name: 'الرياض' },
+          { id: 3, name: 'القاهرة' },
+          { id: 4, name: 'بيروت' },
+          { id: 5, name: 'عمان' }
+        ],
+        onSelect: (item) => console.log('Selected city:', item)
+      });
 
       // Event Calendar
       const today = new Date();
