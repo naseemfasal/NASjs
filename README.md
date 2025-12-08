@@ -3,7 +3,7 @@
 > Modern DatePicker (jQuery UI Alternative), TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Popup (SweetAlert Alternative) - Zero Dependencies, Lightweight UI Components for **React, Vue, Angular & Vanilla JS**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.4.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-1.5.0-green.svg)]()
 [![Size](https://img.shields.io/badge/gzip-~8KB-orange.svg)]()
 [![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)]()
 [![GitHub stars](https://img.shields.io/github/stars/naseemfasal/NASjs?style=social)](https://github.com/naseemfasal/NASjs/stargazers)
@@ -58,8 +58,8 @@ yarn add nasjs
 ### CDN (jsDelivr - Recommended)
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.css">
-<script src="https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nasjs@1.5.0/dist/nasjs.min.css">
+<script src="https://cdn.jsdelivr.net/npm/nasjs@1.5.0/dist/nasjs.min.js"></script>
 ```
 
 ### CDN (GitHub Pages)
@@ -77,12 +77,12 @@ yarn add nasjs
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nasjs@1.5.0/dist/nasjs.min.css">
 </head>
 <body>
   <input type="text" class="datepicker" placeholder="Select date">
 
-  <script src="https://cdn.jsdelivr.net/npm/nasjs@1.4.0/dist/nasjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nasjs@1.5.0/dist/nasjs.min.js"></script>
   <script>
     NASjs.datePicker({ selector: '.datepicker' });
   </script>

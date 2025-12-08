@@ -3,7 +3,7 @@
  * Modern DatePicker, TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Dialogs
  * A lightweight jQuery UI & SweetAlert alternative for modern web applications
  *
- * @version 1.4.0
+ * @version 1.5.0
  * @license MIT
  * @author Naseem Fasal Palappetty
  * @homepage https://naseemfasal.github.io/NASjs/
@@ -14,7 +14,7 @@
   'use strict';
 
   const NASjs = {
-    version: '1.4.0',
+    version: '1.5.0',
     author: 'Naseem Fasal Palappetty',
     
     /**
