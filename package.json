@@ -1,6 +1,6 @@
 {
   "name": "nasjs",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Modern DatePicker (jQuery UI alternative), TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Popup (SweetAlert alternative) - Zero dependencies, lightweight UI components for vanilla JS, React, Vue, Angular",
   "main": "dist/nasjs.min.js",
   "style": "dist/nasjs.min.css",
