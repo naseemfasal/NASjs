@@ -1,7 +1,9 @@
 /**
  * NASjs.css - Beautiful UI Components Styles
- * @version 1.0.1
+ * Modern DatePicker, TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Dialogs
+ * @version 1.2.0
  * @license MIT
+ * @author Naseem Fasal Palappetty
  */
 
 /* ==========================================================================
@@ -605,5 +607,494 @@
   .nasjs-modal-body,
   .nasjs-confirm-message {
     color: #d1d5db;
+  }
+}
+
+/* ==========================================================================
+   Event Calendar Styles
+   ========================================================================== */
+
+.nasjs-calendar {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.nasjs-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.nasjs-cal-title {
+  display: flex;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.nasjs-cal-nav {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nasjs-cal-nav:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.nasjs-cal-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #f8f9fa;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nasjs-cal-day-name {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nasjs-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.nasjs-cal-cell {
+  min-height: 100px;
+  padding: 8px;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nasjs-cal-cell:nth-child(7n) {
+  border-right: none;
+}
+
+.nasjs-cal-cell:hover {
+  background: #f9fafb;
+}
+
+.nasjs-cal-cell.nasjs-cal-other-month {
+  background: #f8f9fa;
+}
+
+.nasjs-cal-cell.nasjs-cal-other-month .nasjs-cal-date {
+  color: #9ca3af;
+}
+
+.nasjs-cal-cell.nasjs-cal-today .nasjs-cal-date {
+  background: #3b82f6;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasjs-cal-date {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.nasjs-cal-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nasjs-cal-event {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.nasjs-cal-event:hover {
+  opacity: 0.85;
+}
+
+.nasjs-cal-more {
+  font-size: 11px;
+  color: #6b7280;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.nasjs-cal-more:hover {
+  color: #3b82f6;
+}
+
+/* Event popup content */
+.nasjs-event-popup-content {
+  padding: 8px 0;
+}
+
+.nasjs-event-field {
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nasjs-event-field:last-child {
+  border-bottom: none;
+}
+
+.nasjs-day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nasjs-day-event-item {
+  padding: 12px;
+  border-left: 4px solid #3b82f6;
+  background: #f8f9fa;
+  border-radius: 0 8px 8px 0;
+}
+
+.nasjs-day-event-title {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.nasjs-day-event-desc {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* ==========================================================================
+   Image Gallery Styles
+   ========================================================================== */
+
+.nasjs-gallery-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasjs-gallery-overlay.nasjs-visible {
+  opacity: 1;
+}
+
+.nasjs-gallery-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.nasjs-gallery-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.nasjs-gallery-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.nasjs-gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 36px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.nasjs-gallery-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nasjs-gallery-prev {
+  left: 20px;
+}
+
+.nasjs-gallery-next {
+  right: 20px;
+}
+
+.nasjs-gallery-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90%;
+  max-height: 80%;
+}
+
+.nasjs-gallery-image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasjs-gallery-image {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 4px;
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+}
+
+.nasjs-gallery-image.zoomed {
+  cursor: zoom-out;
+}
+
+.nasjs-gallery-zoom {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nasjs-gallery-zoom:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.nasjs-gallery-info {
+  text-align: center;
+  padding: 16px;
+  color: #ffffff;
+}
+
+.nasjs-gallery-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.nasjs-gallery-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nasjs-gallery-counter {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nasjs-gallery-thumbnails {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  max-width: 90%;
+  overflow-x: auto;
+}
+
+.nasjs-gallery-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+}
+
+.nasjs-gallery-thumb:hover {
+  opacity: 0.8;
+}
+
+.nasjs-gallery-thumb.active {
+  opacity: 1;
+  border-color: #ffffff;
+}
+
+.nasjs-gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   Calendar Dark Mode
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  .nasjs-calendar {
+    background: #1f2937;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .nasjs-cal-days-header {
+    background: #374151;
+    border-color: #4b5563;
+  }
+
+  .nasjs-cal-day-name {
+    color: #9ca3af;
+  }
+
+  .nasjs-cal-cell {
+    border-color: #374151;
+  }
+
+  .nasjs-cal-cell:hover {
+    background: #374151;
+  }
+
+  .nasjs-cal-cell.nasjs-cal-other-month {
+    background: #111827;
+  }
+
+  .nasjs-cal-date {
+    color: #f9fafb;
+  }
+
+  .nasjs-cal-cell.nasjs-cal-other-month .nasjs-cal-date {
+    color: #6b7280;
+  }
+
+  .nasjs-day-event-item {
+    background: #374151;
+  }
+
+  .nasjs-day-event-title {
+    color: #f9fafb;
+  }
+
+  .nasjs-event-field {
+    border-color: #374151;
+  }
+}
+
+/* ==========================================================================
+   Calendar Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .nasjs-cal-cell {
+    min-height: 60px;
+    padding: 4px;
+  }
+
+  .nasjs-cal-event {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+
+  .nasjs-cal-date {
+    font-size: 12px;
+  }
+
+  .nasjs-gallery-nav {
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+  }
+
+  .nasjs-gallery-prev {
+    left: 10px;
+  }
+
+  .nasjs-gallery-next {
+    right: 10px;
+  }
+
+  .nasjs-gallery-thumbnails {
+    bottom: 10px;
+    padding: 8px;
+  }
+
+  .nasjs-gallery-thumb {
+    width: 50px;
+    height: 50px;
   }
 }

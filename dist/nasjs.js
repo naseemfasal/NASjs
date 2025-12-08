@@ -1,16 +1,21 @@
 /**
  * NASjs - Beautiful, Lightweight UI Components
- * @version 1.0.1
+ * Modern DatePicker, TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Dialogs
+ * A lightweight jQuery UI & SweetAlert alternative for modern web applications
+ *
+ * @version 1.2.0
  * @license MIT
- * @author Your Name
- * @description Framework-agnostic UI component library
+ * @author Naseem Fasal Palappetty
+ * @homepage https://naseemfasal.github.io/NASjs/
+ * @description Framework-agnostic UI component library - Zero dependencies, works with React, Vue, Angular or vanilla JS
  */
 
 (function(global) {
   'use strict';
 
   const NASjs = {
-    version: '1.0.1',
+    version: '1.2.0',
+    author: 'Naseem Fasal Palappetty',
     
     /**
      * DatePicker Component
@@ -727,6 +732,7 @@
     
     /**
      * Confirm Dialog Component
+     * Modern replacement for SweetAlert - lightweight confirmation dialogs
      */
     confirm: function(options = {}) {
       const defaults = {
@@ -737,9 +743,9 @@
         onConfirm: null,
         onCancel: null
       };
-      
+
       const config = { ...defaults, ...options };
-      
+
       return this.modal({
         title: config.title,
         content: `<p class="nasjs-confirm-message">${config.message}</p>`,
@@ -762,6 +768,645 @@
         closeOnBackdrop: false,
         closeOnEscape: true
       });
+    },
+
+    /**
+     * Event Calendar Component
+     * Full calendar view with event display and popup details
+     */
+    eventCalendar: function(options = {}) {
+      const defaults = {
+        selector: '#calendar',
+        events: [],
+        eventsUrl: null,
+        dateField: 'date',
+        titleField: 'title',
+        descriptionField: 'description',
+        colorField: 'color',
+        defaultColor: '#3b82f6',
+        onEventClick: null,
+        onDateClick: null,
+        onMonthChange: null,
+        renderEventPopup: null,
+        popupFields: null,
+        showEventCount: true,
+        maxEventsPerDay: 3
+      };
+
+      const config = { ...defaults, ...options };
+
+      class EventCalendar {
+        constructor(config) {
+          this.config = config;
+          this.currentDate = new Date();
+          this.events = [];
+          this.container = typeof config.selector === 'string'
+            ? document.querySelector(config.selector)
+            : config.selector;
+
+          if (!this.container) {
+            console.error('NASjs.eventCalendar: Container not found');
+            return;
+          }
+
+          this.months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+          ];
+          this.days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+          this.init();
+        }
+
+        async init() {
+          this.container.classList.add('nasjs-calendar');
+          await this.loadEvents();
+          this.render();
+        }
+
+        async loadEvents() {
+          if (this.config.eventsUrl) {
+            try {
+              const response = await fetch(this.config.eventsUrl);
+              const data = await response.json();
+              this.events = Array.isArray(data) ? data : (data.events || data.data || []);
+            } catch (error) {
+              console.error('Failed to load events:', error);
+              this.events = this.config.events || [];
+            }
+          } else {
+            this.events = this.config.events || [];
+          }
+        }
+
+        getEventsForDate(date) {
+          const dateStr = this.formatDateStr(date);
+          return this.events.filter(event => {
+            const eventDate = event[this.config.dateField];
+            return eventDate === dateStr || eventDate?.startsWith(dateStr);
+          });
+        }
+
+        formatDateStr(date) {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        }
+
+        render() {
+          const year = this.currentDate.getFullYear();
+          const month = this.currentDate.getMonth();
+
+          this.container.innerHTML = `
+            <div class="nasjs-cal-header">
+              <button class="nasjs-cal-nav" data-action="prev">‹</button>
+              <div class="nasjs-cal-title">
+                <span class="nasjs-cal-month">${this.months[month]}</span>
+                <span class="nasjs-cal-year">${year}</span>
+              </div>
+              <button class="nasjs-cal-nav" data-action="next">›</button>
+            </div>
+            <div class="nasjs-cal-days-header">
+              ${this.days.map(day => `<div class="nasjs-cal-day-name">${day}</div>`).join('')}
+            </div>
+            <div class="nasjs-cal-grid">
+              ${this.renderDays()}
+            </div>
+          `;
+
+          this.attachEvents();
+        }
+
+        renderDays() {
+          const year = this.currentDate.getFullYear();
+          const month = this.currentDate.getMonth();
+          const firstDay = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const daysInPrevMonth = new Date(year, month, 0).getDate();
+          const today = new Date();
+
+          let html = '';
+
+          // Previous month days
+          for (let i = firstDay - 1; i >= 0; i--) {
+            const day = daysInPrevMonth - i;
+            html += `<div class="nasjs-cal-cell nasjs-cal-other-month">
+              <div class="nasjs-cal-date">${day}</div>
+            </div>`;
+          }
+
+          // Current month days
+          for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const isToday = date.toDateString() === today.toDateString();
+            const events = this.getEventsForDate(date);
+            const hasEvents = events.length > 0;
+
+            html += `
+              <div class="nasjs-cal-cell ${isToday ? 'nasjs-cal-today' : ''} ${hasEvents ? 'nasjs-cal-has-events' : ''}"
+                   data-date="${this.formatDateStr(date)}">
+                <div class="nasjs-cal-date">${day}</div>
+                ${this.renderCellEvents(events)}
+              </div>
+            `;
+          }
+
+          // Next month days
+          const totalCells = firstDay + daysInMonth;
+          const remainingCells = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
+          for (let day = 1; day <= remainingCells; day++) {
+            html += `<div class="nasjs-cal-cell nasjs-cal-other-month">
+              <div class="nasjs-cal-date">${day}</div>
+            </div>`;
+          }
+
+          return html;
+        }
+
+        renderCellEvents(events) {
+          if (events.length === 0) return '';
+
+          const maxShow = this.config.maxEventsPerDay;
+          const visibleEvents = events.slice(0, maxShow);
+          const remaining = events.length - maxShow;
+
+          let html = '<div class="nasjs-cal-events">';
+
+          visibleEvents.forEach(event => {
+            const color = event[this.config.colorField] || this.config.defaultColor;
+            const title = event[this.config.titleField] || 'Event';
+            html += `<div class="nasjs-cal-event" style="background-color: ${color};"
+                         data-event-id="${event.id || ''}" title="${title}">
+              ${title}
+            </div>`;
+          });
+
+          if (remaining > 0) {
+            html += `<div class="nasjs-cal-more">+${remaining} more</div>`;
+          }
+
+          html += '</div>';
+          return html;
+        }
+
+        attachEvents() {
+          // Navigation
+          this.container.querySelectorAll('[data-action]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const action = e.target.dataset.action;
+              if (action === 'prev') this.changeMonth(-1);
+              if (action === 'next') this.changeMonth(1);
+            });
+          });
+
+          // Event clicks
+          this.container.querySelectorAll('.nasjs-cal-event').forEach(el => {
+            el.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const cell = el.closest('.nasjs-cal-cell');
+              const dateStr = cell.dataset.date;
+              const events = this.getEventsForDate(new Date(dateStr));
+              const eventId = el.dataset.eventId;
+              const event = events.find(ev => String(ev.id) === eventId) || events[0];
+
+              if (this.config.onEventClick) {
+                this.config.onEventClick(event, el);
+              } else {
+                this.showEventPopup(event);
+              }
+            });
+          });
+
+          // Date clicks
+          this.container.querySelectorAll('.nasjs-cal-cell:not(.nasjs-cal-other-month)').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+              if (e.target.closest('.nasjs-cal-event')) return;
+              const dateStr = cell.dataset.date;
+              const events = this.getEventsForDate(new Date(dateStr));
+
+              if (this.config.onDateClick) {
+                this.config.onDateClick(new Date(dateStr), events);
+              } else if (events.length > 0) {
+                this.showDayEventsPopup(new Date(dateStr), events);
+              }
+            });
+          });
+        }
+
+        changeMonth(delta) {
+          this.currentDate.setMonth(this.currentDate.getMonth() + delta);
+          this.render();
+
+          if (this.config.onMonthChange) {
+            this.config.onMonthChange(this.currentDate);
+          }
+        }
+
+        showEventPopup(event) {
+          let content = '';
+
+          if (this.config.renderEventPopup) {
+            content = this.config.renderEventPopup(event);
+          } else if (this.config.popupFields) {
+            content = '<div class="nasjs-event-popup-content">';
+            this.config.popupFields.forEach(field => {
+              const label = field.label || field.key;
+              const value = event[field.key] || '';
+              content += `<div class="nasjs-event-field">
+                <strong>${label}:</strong> <span>${value}</span>
+              </div>`;
+            });
+            content += '</div>';
+          } else {
+            const title = event[this.config.titleField] || 'Event';
+            const desc = event[this.config.descriptionField] || '';
+            const date = event[this.config.dateField] || '';
+
+            content = `
+              <div class="nasjs-event-popup-content">
+                <div class="nasjs-event-field"><strong>Date:</strong> ${date}</div>
+                ${desc ? `<div class="nasjs-event-field"><strong>Description:</strong> ${desc}</div>` : ''}
+              </div>
+            `;
+          }
+
+          NASjs.modal({
+            title: event[this.config.titleField] || 'Event Details',
+            content: content,
+            buttons: [
+              { text: 'Close', class: 'nasjs-modal-btn-primary' }
+            ]
+          });
+        }
+
+        showDayEventsPopup(date, events) {
+          const dateStr = date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
+
+          let content = `<div class="nasjs-day-events">`;
+          events.forEach(event => {
+            const color = event[this.config.colorField] || this.config.defaultColor;
+            const title = event[this.config.titleField] || 'Event';
+            const desc = event[this.config.descriptionField] || '';
+
+            content += `
+              <div class="nasjs-day-event-item" style="border-left-color: ${color};">
+                <div class="nasjs-day-event-title">${title}</div>
+                ${desc ? `<div class="nasjs-day-event-desc">${desc}</div>` : ''}
+              </div>
+            `;
+          });
+          content += '</div>';
+
+          NASjs.modal({
+            title: dateStr,
+            content: content,
+            buttons: [
+              { text: 'Close', class: 'nasjs-modal-btn-primary' }
+            ]
+          });
+        }
+
+        // Public methods
+        addEvent(event) {
+          this.events.push(event);
+          this.render();
+        }
+
+        removeEvent(eventId) {
+          this.events = this.events.filter(e => e.id !== eventId);
+          this.render();
+        }
+
+        setEvents(events) {
+          this.events = events;
+          this.render();
+        }
+
+        async refreshEvents() {
+          await this.loadEvents();
+          this.render();
+        }
+
+        goToDate(date) {
+          this.currentDate = new Date(date);
+          this.render();
+        }
+
+        goToToday() {
+          this.currentDate = new Date();
+          this.render();
+        }
+      }
+
+      return new EventCalendar(config);
+    },
+
+    /**
+     * Image Gallery Component
+     * Modern popup gallery with navigation, zoom, and thumbnail support
+     */
+    imageGallery: function(options = {}) {
+      const defaults = {
+        selector: '[data-nasjs-gallery]',
+        groupBy: 'gallery',
+        enableZoom: true,
+        enableKeyboard: true,
+        showThumbnails: true,
+        showCounter: true,
+        closeOnBackdrop: true,
+        animationDuration: 300,
+        zoomLevel: 2,
+        onOpen: null,
+        onClose: null,
+        onChange: null
+      };
+
+      const config = { ...defaults, ...options };
+
+      class ImageGallery {
+        constructor(config) {
+          this.config = config;
+          this.galleries = {};
+          this.currentGallery = null;
+          this.currentIndex = 0;
+          this.isZoomed = false;
+          this.overlay = null;
+
+          this.init();
+        }
+
+        init() {
+          this.collectImages();
+          this.attachEvents();
+        }
+
+        collectImages() {
+          const elements = document.querySelectorAll(this.config.selector);
+
+          elements.forEach((el, index) => {
+            const groupName = el.dataset.gallery || el.dataset.nasjsGallery || 'default';
+            const imageUrl = el.dataset.imageUrl || el.dataset.fullsize || el.href || el.src;
+            const thumbnail = el.src || el.querySelector('img')?.src || imageUrl;
+            const title = el.dataset.title || el.title || el.alt || '';
+            const description = el.dataset.description || '';
+
+            if (!this.galleries[groupName]) {
+              this.galleries[groupName] = [];
+            }
+
+            this.galleries[groupName].push({
+              element: el,
+              imageUrl: imageUrl,
+              thumbnail: thumbnail,
+              title: title,
+              description: description,
+              index: this.galleries[groupName].length
+            });
+          });
+        }
+
+        attachEvents() {
+          Object.values(this.galleries).flat().forEach(item => {
+            item.element.style.cursor = 'pointer';
+            item.element.addEventListener('click', (e) => {
+              e.preventDefault();
+              const groupName = item.element.dataset.gallery || item.element.dataset.nasjsGallery || 'default';
+              this.open(groupName, item.index);
+            });
+          });
+        }
+
+        open(galleryName, index = 0) {
+          this.currentGallery = this.galleries[galleryName];
+          this.currentIndex = index;
+
+          if (!this.currentGallery || this.currentGallery.length === 0) return;
+
+          this.createOverlay();
+          this.showImage(index);
+
+          document.body.style.overflow = 'hidden';
+
+          if (this.config.onOpen) {
+            this.config.onOpen(this.currentGallery[index]);
+          }
+        }
+
+        createOverlay() {
+          this.overlay = document.createElement('div');
+          this.overlay.className = 'nasjs-gallery-overlay';
+
+          const gallery = this.currentGallery;
+          const showThumbs = this.config.showThumbnails && gallery.length > 1;
+
+          this.overlay.innerHTML = `
+            <div class="nasjs-gallery-container">
+              <button class="nasjs-gallery-close" aria-label="Close">&times;</button>
+
+              ${gallery.length > 1 ? `
+                <button class="nasjs-gallery-nav nasjs-gallery-prev" aria-label="Previous">‹</button>
+                <button class="nasjs-gallery-nav nasjs-gallery-next" aria-label="Next">›</button>
+              ` : ''}
+
+              <div class="nasjs-gallery-content">
+                <div class="nasjs-gallery-image-wrapper">
+                  <img class="nasjs-gallery-image" src="" alt="">
+                  ${this.config.enableZoom ? `
+                    <button class="nasjs-gallery-zoom" aria-label="Zoom">
+                      <svg viewBox="0 0 24 24" width="24" height="24">
+                        <circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2"/>
+                        <line x1="11" y1="8" x2="11" y2="14" stroke="currentColor" stroke-width="2"/>
+                        <line x1="8" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </button>
+                  ` : ''}
+                </div>
+                <div class="nasjs-gallery-info">
+                  <div class="nasjs-gallery-title"></div>
+                  <div class="nasjs-gallery-description"></div>
+                </div>
+              </div>
+
+              ${this.config.showCounter && gallery.length > 1 ? `
+                <div class="nasjs-gallery-counter">
+                  <span class="nasjs-gallery-current">1</span> / <span class="nasjs-gallery-total">${gallery.length}</span>
+                </div>
+              ` : ''}
+
+              ${showThumbs ? `
+                <div class="nasjs-gallery-thumbnails">
+                  ${gallery.map((item, i) => `
+                    <div class="nasjs-gallery-thumb ${i === 0 ? 'active' : ''}" data-index="${i}">
+                      <img src="${item.thumbnail}" alt="${item.title}">
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          document.body.appendChild(this.overlay);
+
+          // Animate in
+          setTimeout(() => this.overlay.classList.add('nasjs-visible'), 10);
+
+          this.attachOverlayEvents();
+        }
+
+        attachOverlayEvents() {
+          // Close button
+          this.overlay.querySelector('.nasjs-gallery-close').addEventListener('click', () => this.close());
+
+          // Navigation
+          const prevBtn = this.overlay.querySelector('.nasjs-gallery-prev');
+          const nextBtn = this.overlay.querySelector('.nasjs-gallery-next');
+
+          if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
+          if (nextBtn) nextBtn.addEventListener('click', () => this.next());
+
+          // Thumbnails
+          this.overlay.querySelectorAll('.nasjs-gallery-thumb').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+              this.showImage(parseInt(thumb.dataset.index));
+            });
+          });
+
+          // Zoom
+          const zoomBtn = this.overlay.querySelector('.nasjs-gallery-zoom');
+          if (zoomBtn) {
+            zoomBtn.addEventListener('click', () => this.toggleZoom());
+          }
+
+          // Backdrop click
+          if (this.config.closeOnBackdrop) {
+            this.overlay.addEventListener('click', (e) => {
+              if (e.target === this.overlay || e.target.classList.contains('nasjs-gallery-container')) {
+                this.close();
+              }
+            });
+          }
+
+          // Keyboard
+          if (this.config.enableKeyboard) {
+            this.keyHandler = (e) => {
+              if (e.key === 'Escape') this.close();
+              if (e.key === 'ArrowLeft') this.prev();
+              if (e.key === 'ArrowRight') this.next();
+            };
+            document.addEventListener('keydown', this.keyHandler);
+          }
+
+          // Image click for zoom
+          const img = this.overlay.querySelector('.nasjs-gallery-image');
+          img.addEventListener('click', (e) => {
+            if (this.config.enableZoom) {
+              e.stopPropagation();
+              this.toggleZoom();
+            }
+          });
+        }
+
+        showImage(index) {
+          if (index < 0) index = this.currentGallery.length - 1;
+          if (index >= this.currentGallery.length) index = 0;
+
+          this.currentIndex = index;
+          const item = this.currentGallery[index];
+
+          const img = this.overlay.querySelector('.nasjs-gallery-image');
+          const title = this.overlay.querySelector('.nasjs-gallery-title');
+          const desc = this.overlay.querySelector('.nasjs-gallery-description');
+          const counter = this.overlay.querySelector('.nasjs-gallery-current');
+
+          // Reset zoom
+          this.isZoomed = false;
+          img.classList.remove('zoomed');
+
+          // Update image
+          img.src = item.imageUrl;
+          img.alt = item.title;
+
+          // Update info
+          title.textContent = item.title;
+          desc.textContent = item.description;
+
+          // Update counter
+          if (counter) counter.textContent = index + 1;
+
+          // Update thumbnails
+          this.overlay.querySelectorAll('.nasjs-gallery-thumb').forEach((thumb, i) => {
+            thumb.classList.toggle('active', i === index);
+          });
+
+          if (this.config.onChange) {
+            this.config.onChange(item, index);
+          }
+        }
+
+        prev() {
+          this.showImage(this.currentIndex - 1);
+        }
+
+        next() {
+          this.showImage(this.currentIndex + 1);
+        }
+
+        toggleZoom() {
+          const img = this.overlay.querySelector('.nasjs-gallery-image');
+          this.isZoomed = !this.isZoomed;
+          img.classList.toggle('zoomed', this.isZoomed);
+
+          if (this.isZoomed) {
+            img.style.transform = `scale(${this.config.zoomLevel})`;
+            img.style.cursor = 'zoom-out';
+          } else {
+            img.style.transform = '';
+            img.style.cursor = 'zoom-in';
+          }
+        }
+
+        close() {
+          if (!this.overlay) return;
+
+          this.overlay.classList.remove('nasjs-visible');
+
+          setTimeout(() => {
+            if (this.overlay && this.overlay.parentNode) {
+              this.overlay.parentNode.removeChild(this.overlay);
+            }
+            this.overlay = null;
+            document.body.style.overflow = '';
+
+            if (this.keyHandler) {
+              document.removeEventListener('keydown', this.keyHandler);
+            }
+
+            if (this.config.onClose) {
+              this.config.onClose();
+            }
+          }, this.config.animationDuration);
+        }
+
+        // Public methods
+        refresh() {
+          this.galleries = {};
+          this.collectImages();
+          this.attachEvents();
+        }
+
+        openGallery(galleryName, index = 0) {
+          this.open(galleryName, index);
+        }
+      }
+
+      return new ImageGallery(config);
     }
   };
   

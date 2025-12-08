@@ -1,7 +1,7 @@
 {
   "name": "nasjs",
-  "version": "1.0.0",
-  "description": "Beautiful, lightweight, framework-agnostic UI components for modern web applications",
+  "version": "1.2.0",
+  "description": "Modern DatePicker (jQuery UI alternative), TimePicker, Event Calendar, Image Gallery, Modal & Confirmation Popup (SweetAlert alternative) - Zero dependencies, lightweight UI components for vanilla JS, React, Vue, Angular",
   "main": "dist/nasjs.min.js",
   "style": "dist/nasjs.min.css",
   "types": "dist/nasjs.d.ts",
@@ -24,13 +24,17 @@
     "url": "git+https://github.com/naseemfasal/NASjs.git"
   },
   "keywords": [
-    "ui",
-    "components",
     "datepicker",
     "timepicker",
+    "calendar",
+    "event-calendar",
+    "image-gallery",
+    "lightbox",
     "modal",
     "popup",
-    "clock",
+    "confirm",
+    "sweetalert-alternative",
+    "jquery-ui-alternative",
     "vanilla-js",
     "javascript",
     "framework-agnostic",
@@ -38,9 +42,11 @@
     "responsive",
     "dark-mode",
     "accessible",
-    "nasjs"
+    "ui-components",
+    "nasjs",
+    "no-dependencies"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Naseem Fasal Palappetty",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/naseemfasal/NASjs/issues"
